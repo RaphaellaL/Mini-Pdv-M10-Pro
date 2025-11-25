@@ -37,4 +37,10 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    //implementation 'br.com.elgin:androidtermica:2.20.2'
+    implementation 'com.imin.printer:iminprinterlibrary:1.1.9'
+
+    implementation files('libs/e1-vx.y.z-release.aar')
+    implementation files('libs/minipdvm8.aar')
 }
