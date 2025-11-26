@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://raw.githubusercontent.com/ElginDeveloperGroup/ElginPOS_SDK_Android/master" }
+        maven { url 'https://jitpack.io' }
     }
 }
 
