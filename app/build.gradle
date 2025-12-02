@@ -2,6 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 android {
     namespace 'com.example.mini_pdv_m10_pro'
     compileSdk 35
@@ -22,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -38,11 +45,7 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // SDK CORRETO DO M10 PRO
-    implementation 'com.imin.printer:iminPrinterLib:2.3.3'
-
-    // REMOVER ESTAS LINHAS ↓↓↓
-    // implementation 'com.github.iminsoftware:IminPrinterLibrary:V1.0.0.15'
-    // implementation files('libs/e1-vx.y.z-release.aar')
-    // implementation files('libs/minipdvm8.aar')
+    // 👇 Somente as duas libs necessárias para o M10
+    implementation files("libs/IminLibs1.0.15.jar")
+    implementation files("libs/IminPrinterSDK-13_V1.3.0_2406031714.jar")
 }

@@ -11,14 +11,19 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+
+        flatDir {
+            dirs "${rootDir}/app/libs"
+        }
     }
 }
+
 
 rootProject.name = "Mini-Pdv-M10-Pro"
 include ':app'

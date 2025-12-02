@@ -1,60 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    tools:context=".MainActivity">
-
-    <Button
-        android:id="@+id/btnConnect"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Conectar Impressora"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center"
+    android:background="#FAFAFA">
 
     <Button
         android:id="@+id/btnPrintText"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Imprimir Texto"
-        app:layout_constraintTop_toBottomOf="@id/btnConnect"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/btnAlignCenter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alinhar Centro"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/btnAlignLeft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alinhar Esquerda"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/btnAlignRight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alinhar Direita"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
 
     <Button
         android:id="@+id/btnPrintQr"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Imprimir QR Code"
-        app:layout_constraintTop_toBottomOf="@id/btnPrintText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:text="Imprimir QRCode"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
 
     <Button
-        android:id="@+id/btnDrawer"
-        android:layout_width="0dp"
+        android:id="@+id/btnCut"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Abrir Gaveta"
-        app:layout_constraintTop_toBottomOf="@id/btnPrintQr"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:text="Cortar Papel"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
 
     <Button
-        android:id="@+id/btnDisconnect"
-        android:layout_width="0dp"
+        android:id="@+id/btnFullTest"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Desconectar"
-        app:layout_constraintTop_toBottomOf="@id/btnDrawer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:text="Teste Completo"
+        android:padding="16dp"
+        android:layout_marginTop="10dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
