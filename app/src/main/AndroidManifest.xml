@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.USB_PERMISSION" />
     <uses-permission android:name="com.imin.permission.PRINTER" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 
 

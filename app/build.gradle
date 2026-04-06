@@ -20,6 +20,16 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'armeabi-v7a','arm64-v8a'
+        }
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs','../app/libs' //
+        }
     }
 
     buildTypes {
@@ -45,7 +55,9 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // 👇 Somente as duas libs necessárias para o M10
+
     implementation files("libs/IminLibs1.0.15.jar")
     implementation files("libs/IminPrinterSDK-13_V1.3.0_2406031714.jar")
+    implementation files('libs/freeimagelibrary-4-v1.3_2310241200.jar')
+
 }

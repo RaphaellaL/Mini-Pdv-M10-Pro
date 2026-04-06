@@ -2,16 +2,40 @@ package com.example.mini_pdv_m10_pro;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.util.Log;
 
+import com.imin.image.ILcdManager;
+import com.imin.library.IminSDKManager;
 import com.imin.printerlib.IminPrintUtils;
 
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+
 
 public class MainActivity extends AppCompatActivity {
+
+
+    static {
+        try {
+            System.loadLibrary("free_image");
+            Log.d("LCD", "libfree_image carregada!");
+        } catch (Exception e) {
+            Log.e("LCD", "Erro ao carregar lib: " + e.getMessage());
+        }
+    }
+
+
 
     private static final String TAG = "IMIN_PRINT";
     private IminPrintUtils printer;
@@ -23,6 +47,28 @@ public class MainActivity extends AppCompatActivity {
 
         printer = IminPrintUtils.getInstance(this);
 
+
+
+        DisplayManager displayManager =
+                (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+
+        Display[] displays = displayManager.getDisplays(
+                DisplayManager.DISPLAY_CATEGORY_PRESENTATION
+        );
+
+
+
+
+        if (displays.length > 0) {
+            Display display = displays[0];
+
+            CustomerPresentation presentation =
+                    new CustomerPresentation(this, display);
+
+            presentation.show();
+        } else {
+            Log.e("DISPLAY", "Nenhuma tela secundária encontrada");
+        }
         // Inicializa via USB (M10)
         try {
             printer.initPrinter(IminPrintUtils.PrintConnectType.USB);
@@ -37,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnPrintQr = findViewById(R.id.btnPrintQr);
         Button btnCut = findViewById(R.id.btnCut);
         Button btnFullTest = findViewById(R.id.btnFullTest);
+        Button btnDisplay=findViewById(R.id.btnDisplay);
 
         btnPrintText.setOnClickListener(v -> {
             try {
@@ -130,7 +177,56 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Erro full test: " + e.getMessage(), e);
             }
         });
+
+
+        btnDisplay.setOnClickListener(v -> {
+            try {
+
+                ILcdManager lcd = ILcdManager.getInstance(this);
+
+                lcd.sendLCDCommand(1); // garante ligado
+                lcd.sendLCDString("TESTE RAPHAELLA");
+
+            } catch (Exception e) {
+                Log.e(TAG, "Erro display: " + e.getMessage(), e);
+            }
+        });
     }
+
+//    public void sendBitmapDirect(Bitmap bitmap) {
+//        try {
+//            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 240, 320, false);
+//
+//            ByteBuffer buffer = ByteBuffer.allocate(240 * 320 * 2);
+//
+//            for (int y = 0; y < 320; y++) {
+//                for (int x = 0; x < 240; x++) {
+//                    int pixel = resized.getPixel(x, y);
+//
+//                    int r = (pixel >> 16) & 0xFF;
+//                    int g = (pixel >> 8) & 0xFF;
+//                    int b = pixel & 0xFF;
+//
+//                    // RGB565
+//                    int value = ((r >> 3) << 11) |
+//                            ((g >> 2) << 5) |
+//                            (b >> 3);
+//
+//                    buffer.put((byte) (value & 0xFF));
+//                    buffer.put((byte) ((value >> 8) & 0xFF));
+//                }
+//            }
+//
+//            FileOutputStream fos = new FileOutputStream("/dev/spidev1.0");
+//            fos.write(buffer.array());
+//            fos.flush();
+//            fos.close();
+//
+//            Log.d("LCD", "Imagem enviada direto!");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Avança o papel usando ESC d n  -> 0x1B 0x64 n
