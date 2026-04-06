@@ -10,21 +10,15 @@ import android.graphics.Paint;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.View;
 import android.widget.Button;
 import android.util.Log;
 
 import com.imin.image.ILcdManager;
-import com.imin.library.IminSDKManager;
 import com.imin.printerlib.IminPrintUtils;
 
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-
 
 public class MainActivity extends AppCompatActivity {
-
 
     static {
         try {
@@ -34,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("LCD", "Erro ao carregar lib: " + e.getMessage());
         }
     }
-
-
 
     private static final String TAG = "IMIN_PRINT";
     private IminPrintUtils printer;
@@ -47,17 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
         printer = IminPrintUtils.getInstance(this);
 
-
-
         DisplayManager displayManager =
                 (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
 
         Display[] displays = displayManager.getDisplays(
                 DisplayManager.DISPLAY_CATEGORY_PRESENTATION
         );
-
-
-
 
         if (displays.length > 0) {
             Display display = displays[0];
@@ -69,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.e("DISPLAY", "Nenhuma tela secundária encontrada");
         }
-        // Inicializa via USB (M10)
+
         try {
             printer.initPrinter(IminPrintUtils.PrintConnectType.USB);
         } catch (Exception e) {
@@ -83,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnPrintQr = findViewById(R.id.btnPrintQr);
         Button btnCut = findViewById(R.id.btnCut);
         Button btnFullTest = findViewById(R.id.btnFullTest);
-        Button btnDisplay=findViewById(R.id.btnDisplay);
+        Button btnDisplay = findViewById(R.id.btnDisplay);
 
         btnPrintText.setOnClickListener(v -> {
             try {
@@ -96,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnAlignCenter.setOnClickListener(v -> {
             try {
-                setAlignment(1); // 1 = center
+                setAlignment(1);
                 printer.printText("CENTRALIZADO\n");
                 feedPaper(30);
             } catch (Exception e) {
@@ -106,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnAlignLeft.setOnClickListener(v -> {
             try {
-                setAlignment(0); // 0 = left
+                setAlignment(0);
                 printer.printText("ESQUERDA\n");
                 feedPaper(30);
             } catch (Exception e) {
@@ -116,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnAlignRight.setOnClickListener(v -> {
             try {
-                setAlignment(2); // 2 = right
+                setAlignment(2);
                 printer.printText("DIREITA\n");
                 feedPaper(30);
             } catch (Exception e) {
@@ -126,10 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
         btnPrintQr.setOnClickListener(v -> {
             try {
-                // Tenta chamar printQRCode(String, int) ou printQr(String, int) via reflexão
                 boolean ok = printQrSafe("https://raphaella.com", 6);
                 if (!ok) {
-                    // fallback: imprime a própria URL como texto se QR não puder ser gerado pela lib
                     printer.printText("https://raphaella.com\n");
                 }
                 feedPaper(50);
@@ -140,15 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
         btnCut.setOnClickListener(v -> {
             try {
-                // corte parcial (se o método existir)
                 try {
                     Method cut = printer.getClass().getMethod("cutPaper", int.class);
                     cut.invoke(printer, 1);
                 } catch (NoSuchMethodException nsme) {
-                    // se não existir, manda comando ESC/POS de corte parcial (pode ou não funcionar dependendo do hardware)
-                    // GS V m: 0x1D 0x56 0x01
-                    printer.cutPaper(); // corte parcial
-
+                    printer.cutPaper();
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Erro cortar papel: " + e.getMessage(), e);
@@ -165,124 +146,89 @@ public class MainActivity extends AppCompatActivity {
                 setAlignment(1);
                 printQrSafe("https://teste.com", 6);
                 feedPaper(60);
-                // tenta cortar
+
                 try {
                     Method cut = printer.getClass().getMethod("cutPaper", int.class);
                     cut.invoke(printer, 1);
                 } catch (NoSuchMethodException ignored) {
                     printer.cutPaper();
-
                 }
+
             } catch (Exception e) {
                 Log.e(TAG, "Erro full test: " + e.getMessage(), e);
             }
         });
 
 
-        btnDisplay.setOnClickListener(v -> {
-            try {
+            btnDisplay.setOnClickListener(v -> {
+                try {
 
-                ILcdManager lcd = ILcdManager.getInstance(this);
+                    ILcdManager lcd = ILcdManager.getInstance(this);
 
-                lcd.sendLCDCommand(1); // garante ligado
-                lcd.sendLCDString("TESTE RAPHAELLA");
+                    lcd.sendLCDCommand(1);
 
-            } catch (Exception e) {
-                Log.e(TAG, "Erro display: " + e.getMessage(), e);
-            }
-        });
+                    Bitmap bitmap = Bitmap.createBitmap(240, 320, Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+
+                    // FUNDO PRETO
+                    canvas.drawColor(Color.BLACK);
+
+                    Paint paint = new Paint();
+                    paint.setColor(Color.WHITE);
+                    paint.setTextSize(50);
+                    paint.setAntiAlias(true);
+
+                    canvas.drawText("TESTE", 40, 140, paint);
+                    canvas.drawText("RAPHAELLA", 10, 200, paint);
+
+                    // 🔥 ESSA LINHA MUDA TUDO
+                    lcd.sendLCDMinBitmap(bitmap, 1);
+
+                    Log.d("LCD", "Bitmap enviado!");
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Erro display: " + e.getMessage(), e);
+                }
+            });
     }
 
-//    public void sendBitmapDirect(Bitmap bitmap) {
-//        try {
-//            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 240, 320, false);
-//
-//            ByteBuffer buffer = ByteBuffer.allocate(240 * 320 * 2);
-//
-//            for (int y = 0; y < 320; y++) {
-//                for (int x = 0; x < 240; x++) {
-//                    int pixel = resized.getPixel(x, y);
-//
-//                    int r = (pixel >> 16) & 0xFF;
-//                    int g = (pixel >> 8) & 0xFF;
-//                    int b = pixel & 0xFF;
-//
-//                    // RGB565
-//                    int value = ((r >> 3) << 11) |
-//                            ((g >> 2) << 5) |
-//                            (b >> 3);
-//
-//                    buffer.put((byte) (value & 0xFF));
-//                    buffer.put((byte) ((value >> 8) & 0xFF));
-//                }
-//            }
-//
-//            FileOutputStream fos = new FileOutputStream("/dev/spidev1.0");
-//            fos.write(buffer.array());
-//            fos.flush();
-//            fos.close();
-//
-//            Log.d("LCD", "Imagem enviada direto!");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    /**
-     * Avança o papel usando ESC d n  -> 0x1B 0x64 n
-     */
     private void feedPaper(int dots) {
         try {
-            printer.cutPaper(); // corte padrão do M10
-
+            printer.cutPaper();
         } catch (Exception e) {
             Log.e(TAG, "Erro ao avançar papel: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Define alinhamento via ESC a n  -> 0x1B 0x61 n
-     * n = 0 left, 1 center, 2 right
-     */
     private void setAlignment(int mode) {
         try {
-            printer.cutPaper(); // corte padrão do M10
-
-
+            // (placeholder - depois te ensino o comando correto)
         } catch (Exception e) {
             Log.e(TAG, "Erro setAlignment: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Tenta chamar métodos comuns de impressão de QR na SDK via reflexão.
-     * Retorna true se chamamos com sucesso algum método que gere o QR.
-     */
     private boolean printQrSafe(String data, int size) {
         try {
-            // tenta printQRCode(String, int)
             try {
                 Method m = printer.getClass().getMethod("printQRCode", String.class, int.class);
                 m.invoke(printer, data, size);
                 return true;
             } catch (NoSuchMethodException ignored) {}
 
-            // tenta printQr(String, int)
             try {
                 Method m2 = printer.getClass().getMethod("printQr", String.class, int.class);
                 m2.invoke(printer, data, size);
                 return true;
             } catch (NoSuchMethodException ignored) {}
 
-            // tenta printQrCode(String, int)
             try {
                 Method m3 = printer.getClass().getMethod("printQrCode", String.class, int.class);
                 m3.invoke(printer, data, size);
                 return true;
             } catch (NoSuchMethodException ignored) {}
 
-            // nenhum método encontrado
-            Log.w(TAG, "Nenhum método de QR encontrado na SDK (printQRCode/printQr).");
+            Log.w(TAG, "Nenhum método de QR encontrado.");
             return false;
 
         } catch (Exception e) {
