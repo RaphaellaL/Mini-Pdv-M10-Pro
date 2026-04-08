@@ -59,5 +59,6 @@ dependencies {
     implementation files("libs/IminLibs1.0.15.jar")
     implementation files("libs/IminPrinterSDK-13_V1.3.0_2406031714.jar")
     implementation files('libs/freeimagelibrary-4-v1.3_2310241200.jar')
+    implementation 'com.google.zxing:core:3.5.1'
 
 }

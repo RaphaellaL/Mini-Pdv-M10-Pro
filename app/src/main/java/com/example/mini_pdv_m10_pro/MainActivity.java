@@ -16,7 +16,9 @@ import android.util.Log;
 import com.imin.image.ILcdManager;
 import com.imin.printerlib.IminPrintUtils;
 
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "IMIN_PRINT";
     private IminPrintUtils printer;
+    private ILcdManager lcd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         printer = IminPrintUtils.getInstance(this);
+        lcd = ILcdManager.getInstance(this);
 
         DisplayManager displayManager =
                 (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
@@ -160,37 +164,51 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-            btnDisplay.setOnClickListener(v -> {
-                try {
+        btnDisplay.setOnClickListener(v -> {
+            try {
+                ILcdManager lcd = ILcdManager.getInstance(this);
 
-                    ILcdManager lcd = ILcdManager.getInstance(this);
+                lcd.sendLCDCommand(1);
 
-                    lcd.sendLCDCommand(1);
+                // 🔥 gera QR
+                Bitmap qr = gerarQRCode("https://pagamento.com/123");
 
-                    Bitmap bitmap = Bitmap.createBitmap(240, 320, Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
+                // cria fundo do display
+                Bitmap finalBitmap = Bitmap.createBitmap(320, 240, Bitmap.Config.RGB_565);
+                Canvas canvas = new Canvas(finalBitmap);
 
-                    // FUNDO PRETO
-                    canvas.drawColor(Color.BLACK);
+                canvas.drawColor(Color.WHITE);
 
-                    Paint paint = new Paint();
-                    paint.setColor(Color.WHITE);
-                    paint.setTextSize(50);
-                    paint.setAntiAlias(true);
+                // centraliza QR
+                canvas.drawBitmap(qr, 60, 20, null);
 
-                    canvas.drawText("TESTE", 40, 140, paint);
-                    canvas.drawText("RAPHAELLA", 10, 200, paint);
+                // texto abaixo
+                Paint paint = new Paint();
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(30);
+                paint.setAntiAlias(true);
 
-                    // 🔥 ESSA LINHA MUDA TUDO
-                    lcd.sendLCDMinBitmap(bitmap, 1);
+                canvas.drawText("Pague aqui", 80, 220, paint);
 
-                    Log.d("LCD", "Bitmap enviado!");
+                // envia pro display
+                lcd.sendLCDBitmap(finalBitmap);
 
-                } catch (Exception e) {
-                    Log.e(TAG, "Erro display: " + e.getMessage(), e);
-                }
-            });
+                // 🔥 commit (ESSENCIAL)
+                new android.os.Handler().postDelayed(() -> {
+                    try {
+                        lcd.sendLCDCommand(4);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }, 500);
+
+            } catch (Exception e) {
+                Log.e(TAG, "Erro QR display: " + e.getMessage(), e);
+            }
+        });
     }
+
+
 
     private void feedPaper(int dots) {
         try {
@@ -234,6 +252,28 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Erro printQrSafe: " + e.getMessage(), e);
             return false;
+        }
+    }
+
+
+    private Bitmap gerarQRCode(String text) {
+        try {
+            com.google.zxing.qrcode.QRCodeWriter writer = new com.google.zxing.qrcode.QRCodeWriter();
+            com.google.zxing.common.BitMatrix bitMatrix = writer.encode(text, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
+
+            Bitmap bmp = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
+
+            for (int x = 0; x < 200; x++) {
+                for (int y = 0; y < 200; y++) {
+                    bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+                }
+            }
+
+            return bmp;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
