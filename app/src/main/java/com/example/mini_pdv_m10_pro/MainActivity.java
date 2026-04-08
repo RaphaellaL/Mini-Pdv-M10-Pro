@@ -22,14 +22,14 @@ import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
-    static {
-        try {
-            System.loadLibrary("free_image");
-            Log.d("LCD", "libfree_image carregada!");
-        } catch (Exception e) {
-            Log.e("LCD", "Erro ao carregar lib: " + e.getMessage());
-        }
-    }
+//    static {
+//        try {
+//            System.loadLibrary("free_image");
+//            Log.d("LCD", "libfree_image carregada!");
+//        } catch (Exception e) {
+//            Log.e("LCD", "Erro ao carregar lib: " + e.getMessage());
+//        }
+//    }
 
     private static final String TAG = "IMIN_PRINT";
     private IminPrintUtils printer;
